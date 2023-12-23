@@ -35,16 +35,9 @@ jobs:
 
     # The USERNAME and TOKEN need to correspond to the credentials environment variables used in
     # the publishing section of your build.gradle
-    - name: Upload TrMenu
-      uses: marvinpinto/action-automatic-releases@master
+    - run: mkdir staging && cp build/libs/*.jar staging
+    - uses: actions/upload-artifact@v3
       with:
-          title: "TrMenu"
-          automatic_release_tag: "trmenu"
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          files: "build/libs/*.jar"
-          prerelease: true
-    - name: Upload Artifacts
-      uses: actions/upload-artifact@v2
-      with:
-          name: TrMenu Artifact
-          path: build/libs/*.jar
+          name: Package
+          path: staging
+    
