@@ -62,6 +62,7 @@ public class GuiBuilder {
                 GuiBuilder.open(plugin, player, click.getCurrentItem(), click.getSlot());
             }
         });
+        gui.setCloseGuiAction(close -> plugin.getWrapGui().remove(player.getUniqueId()));
         gui.open(player);
     }
 
@@ -111,10 +112,20 @@ public class GuiBuilder {
         if (plugin.getWrapper().getWrap(item) != null && !plugin.getWrapper().getOriginalData(item).material().isEmpty()) {
             type = Material.valueOf(plugin.getWrapper().getOriginalData(item).material());
         }
+        var currentWrap = plugin.getWrapper().getWrap(item);
+        if (currentWrap != null) {
+            plugin.getWrapGui().put(player.getUniqueId(), currentWrap.getUuid());
+        } else {
+            plugin.getWrapGui().remove(player.getUniqueId());
+        }
         var finalType = type; // Why :(
         plugin.getCollectionHelper().getItems(type).forEach(it -> it.getWraps()
                 .values().stream().filter(wrap -> plugin.getWrapper().isValid(item, wrap))
                 .filter(wrap -> !plugin.getFilterStorage().get(player) || wrap.hasPermission(player)).forEach(wrap -> {
+                    if (currentWrap != null && currentWrap.getUuid().equals(wrap.getUuid()) && wrap.getEquippedItem() != null) {
+                        gui.addItem(new GuiItem(wrap.getEquippedItem().toItem(plugin, player)));
+                        return;
+                    }
                     var wrapItem = wrap.toPermissionItem(plugin, wrap.isArmorImitationEnabled() ? MaterialUtil.getLeatherAlternative(item.getType()) : finalType, player);
                     var guiItem = new GuiItem(wrapItem);
                     guiItem.setAction(click -> {
