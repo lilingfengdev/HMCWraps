@@ -20,10 +20,9 @@ jobs:
           distribution: 'temurin'
           java-version: 17
       - name: Build with Gradle
-        run: ./gradlew api:clean api:build --no-daemon --stacktrace
-      - name: Publish to Nexus
-        if: ${{ env.HAS_TOKEN == 'true' }}
-        run: ./gradlew api:publishMavenPublicationToHibiscusMCRepository
-        env:
-          REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
-          REPO_PASSWORD: ${{ secrets.REPO_PASSWORD }}
+        run: ./gradlew build
+      - run: mkdir staging && cp build/libs/*.jar staging
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Package
+          path: staging
